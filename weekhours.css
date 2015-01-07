@@ -1,11 +1,16 @@
 #weekhours-admin .form-item{float:left; margin: 0 6px;}
 .openhours{float:right;}
-.openhours .closed{color: #f00;}
-.weekhours-container{margin-bottom: 1em;}
-.oneweekhours{}
-.oneweekhours .today{font-weight: bold; color: green}
+.openhours .closed{/* color: #f00; */}
+.weekhours-container{}
+.oneweekhours div{border: 1px solid #616A7F;border-bottom: 0; padding: 9px 8px;  font-size: 13px;}
+.oneweekhours div.sun{border-bottom: 1px solid #616A7F;}
+.oneweekhours .today{color: #fff; background-color: #616A7F}
 .weekday{}
-.weekhour-edit{position:absolute; right:-20px; font-size: 70%; font-weight: bolder; background-color: yellow; /* -webkit-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.75);-moz-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.75);box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.75); */}
-.weekhour-description{font-weight: bold}
-.weekhours-container .create-specialday{position:relative; font-size: 70%; font-weight: bolder; background-color: #eee;}
+.weekhour-edit{position:absolute; right:0px; font-size: 70%; font-weight: bolder; background-color: yellow; /* -webkit-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.75);-moz-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.75);box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.75); */}
+.weekhour-description{}
+.weekhours-container .create-specialday{position:relative; font-size: 70%; font-weight: bolder; background-color: yellow; margin-top: 2px; text-transform: uppercase;}
 .weekhours-container .create-specialday a{display:block}
+
+.odd-weekhours{background-color: #f2f2f2;}
+.even-weekhours{background-color: #f9f9f9;}
+
