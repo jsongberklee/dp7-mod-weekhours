@@ -277,8 +277,12 @@ function _weekhours_content() {
 					$week[$weekday]['end'] = date("g:iA", $end);
 				}
 				
-				if(isset($node->field_wh_description['und'][0]['value'])) $week[$weekday]['start'] = '<span class="weekhour-description">('.$node->field_wh_description['und'][0]['value'].')</span>'.$week[$weekday]['start'];
-				
+				if(isset($node->field_wh_description['und'][0]['value'])){
+					$week[$weekday]['start'] = '<span class="weekhour-description">('.$node->field_wh_description['und'][0]['value'].')</span>'.$week[$weekday]['start'];
+					$week[$weekday]['title'] = $node->field_wh_description['und'][0]['value'];
+					
+				}
+
 				// attach edit button if the user has Edit access for the node
 				if($editAccess === true) $week[$weekday]['start'] .= '<span class="weekhour-edit"><a href="'.url('node/'.$node->nid.'/edit', array('query' => drupal_get_destination())).'">EDIT</a></span>';
 				
@@ -292,13 +296,13 @@ function _weekhours_content() {
 	$output = '	
 		<div class="weekhours-container">
 			<div class="oneweekhours">
-				<div class="mon '.(isset($week['mon']['today']) ? 'today' : '').' odd-weekhours clearfix"><span class="weekday '.(isset($week['mon']['today']) ? 'today ">'.$todayMark : '">').'Mon: </span><span class="openhours">'.$week['mon']['start'].$week['mon']['description'].$week['mon']['end'].'</span></div>
-				<div class="tue '.(isset($week['tue']['today']) ? 'today' : '').' even-weekhours clearfix"><span class="weekday '.(isset($week['tue']['today']) ? 'today ">'.$todayMark : '">').'Tue: </span><span class="openhours">'.$week['tue']['start'].$week['tue']['description'].$week['tue']['end'].'</span></div>		
-				<div class="wed '.(isset($week['wed']['today']) ? 'today' : '').' odd-weekhours clearfix"><span class="weekday '.(isset($week['wed']['today']) ? 'today ">'.$todayMark : '">').'Wed: </span><span class="openhours">'.$week['wed']['start'].$week['wed']['description'].$week['wed']['end'].'</span></div>		
-				<div class="thu '.(isset($week['thu']['today']) ? 'today' : '').' even-weekhours clearfix"><span class="weekday '.(isset($week['thu']['today']) ? 'today ">'.$todayMark : '">').'Thu: </span><span class="openhours">'.$week['thu']['start'].$week['thu']['description'].$week['thu']['end'].'</span></div>		
-				<div class="fri '.(isset($week['fri']['today']) ? 'today' : '').' odd-weekhours clearfix"><span class="weekday '.(isset($week['fri']['today']) ? 'today ">'.$todayMark : '">').'Fri: </span><span class="openhours">'.$week['fri']['start'].$week['fri']['description'].$week['fri']['end'].'</span></div>		
-				<div class="sat '.(isset($week['sat']['today']) ? 'today' : '').' even-weekhours clearfix"><span class="weekday '.(isset($week['sat']['today']) ? 'today ">'.$todayMark : '">').'Sat: </span><span class="openhours">'.$week['sat']['start'].$week['sat']['description'].$week['sat']['end'].'</span></div>		
-				<div class="sun '.(isset($week['sun']['today']) ? 'today' : '').' odd-weekhours clearfix"><span class="weekday '.(isset($week['sun']['today']) ? 'today ">'.$todayMark : '">').'Sun: </span><span class="openhours">'.$week['sun']['start'].$week['sun']['description'].$week['sun']['end'].'</span></div>
+				<div class="mon '.(isset($week['mon']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['mon']['title']) ? 'custom"><span class="title">'.$week['mon']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['mon']['today']) ? 'today ">'.$todayMark : '">').'Mon: </span><span class="openhours">'.$week['mon']['start'].$week['mon']['description'].$week['mon']['end'].'</span></div>
+				<div class="tue '.(isset($week['tue']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['tue']['title']) ? 'custom"><span class="title">'.$week['tue']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['tue']['today']) ? 'today ">'.$todayMark : '">').'Tue: </span><span class="openhours">'.$week['tue']['start'].$week['tue']['description'].$week['tue']['end'].'</span></div>		
+				<div class="wed '.(isset($week['wed']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['wed']['title']) ? 'custom"><span class="title">'.$week['wed']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['wed']['today']) ? 'today ">'.$todayMark : '">').'Wed: </span><span class="openhours">'.$week['wed']['start'].$week['wed']['description'].$week['wed']['end'].'</span></div>		
+				<div class="thu '.(isset($week['thu']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['thu']['title']) ? 'custom"><span class="title">'.$week['thu']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['thu']['today']) ? 'today ">'.$todayMark : '">').'Thu: </span><span class="openhours">'.$week['thu']['start'].$week['thu']['description'].$week['thu']['end'].'</span></div>		
+				<div class="fri '.(isset($week['fri']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['fri']['title']) ? 'custom"><span class="title">'.$week['fri']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['fri']['today']) ? 'today ">'.$todayMark : '">').'Fri: </span><span class="openhours">'.$week['fri']['start'].$week['fri']['description'].$week['fri']['end'].'</span></div>		
+				<div class="sat '.(isset($week['sat']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['sat']['title']) ? 'custom"><span class="title">'.$week['sat']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['sat']['today']) ? 'today ">'.$todayMark : '">').'Sat: </span><span class="openhours">'.$week['sat']['start'].$week['sat']['description'].$week['sat']['end'].'</span></div>		
+				<div class="sun '.(isset($week['sun']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['sun']['title']) ? 'custom"><span class="title">'.$week['sun']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['sun']['today']) ? 'today ">'.$todayMark : '">').'Sun: </span><span class="openhours">'.$week['sun']['start'].$week['sun']['description'].$week['sun']['end'].'</span></div>
 			</div>
 		  '.($editAccess === true ? '<div class="create-specialday"><a href="'.url('node/add/weekhour', array('query' => drupal_get_destination())).'">Create a custom day</a></div>' : '').'
 		</div>
