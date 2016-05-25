@@ -16,14 +16,14 @@ function weekhours_menu() {
 function weekhours_admin() {
 
 	$weekhours = _get_weekhours();
-	
+
   $form = array();
   $form['mon'] = array(
     '#type' => 'fieldset',
     '#title' => t('Monday'),
-    '#collapsible' => TRUE,
+    '#collapsible' => FALSE,
     '#collapsed' => FALSE,
-    '#description' => t("Time format example: 8:45AM, 11:45PM"),
+    //'#description' => t("Example: 8:45AM, 11:45PM"),
   );
   $form['mon']['mon_open'] = array(
     '#type' => 'textfield',
@@ -46,9 +46,9 @@ function weekhours_admin() {
   $form['tue'] = array(
     '#type' => 'fieldset',
     '#title' => t('Tuesday'),
-    '#collapsible' => TRUE,
+    '#collapsible' => FALSE,
     '#collapsed' => FALSE,
-    '#description' => t("Time format example: 8:45AM, 11:45PM"),
+    //'#description' => t("Example: 8:45AM, 11:45PM"),
   );
   $form['tue']['tue_open'] = array(
     '#type' => 'textfield',
@@ -70,9 +70,9 @@ function weekhours_admin() {
   $form['wed'] = array(
     '#type' => 'fieldset',
     '#title' => t('Wednesday'),
-    '#collapsible' => TRUE,
+    '#collapsible' => FALSE,
     '#collapsed' => FALSE,
-    '#description' => t("Time format example: 8:45AM, 11:45PM"),
+    //'#description' => t("Example: 8:45AM, 11:45PM"),
   );
   $form['wed']['wed_open'] = array(
     '#type' => 'textfield',
@@ -94,9 +94,9 @@ function weekhours_admin() {
   $form['thu'] = array(
     '#type' => 'fieldset',
     '#title' => t('Thursday'),
-    '#collapsible' => TRUE,
+    '#collapsible' => FALSE,
     '#collapsed' => FALSE,
-    '#description' => t("Time format example: 8:45AM, 11:45PM"),
+    //'#description' => t("Example: 8:45AM, 11:45PM"),
   );
   $form['thu']['thu_open'] = array(
     '#type' => 'textfield',
@@ -118,9 +118,9 @@ function weekhours_admin() {
   $form['fri'] = array(
     '#type' => 'fieldset',
     '#title' => t('Friday'),
-    '#collapsible' => TRUE,
+    '#collapsible' => FALSE,
     '#collapsed' => FALSE,
-    '#description' => t("Time format example: 8:45AM, 9:45PM"),
+    //'#description' => t("Example: 8:45AM, 9:45PM"),
   );
   $form['fri']['fri_open'] = array(
     '#type' => 'textfield',
@@ -142,9 +142,9 @@ function weekhours_admin() {
   $form['sat'] = array(
     '#type' => 'fieldset',
     '#title' => t('Saturday'),
-    '#collapsible' => TRUE,
+    '#collapsible' => FALSE,
     '#collapsed' => FALSE,
-    '#description' => t("Time format example: 10:00AM, 9:45PM"),
+    //'#description' => t("Example: 10:00AM, 9:45PM"),
   );
   $form['sat']['sat_open'] = array(
     '#type' => 'textfield',
@@ -166,9 +166,9 @@ function weekhours_admin() {
   $form['sun'] = array(
     '#type' => 'fieldset',
     '#title' => t('Sunday'),
-    '#collapsible' => TRUE,
+    '#collapsible' => FALSE,
     '#collapsed' => FALSE,
-    '#description' => t("Time format example: 1:00PM, 11:45PM"),
+    //'#description' => t("Example: 1:00PM, 11:45PM"),
   );
   $form['sun']['sun_open'] = array(
     '#type' => 'textfield',
@@ -186,7 +186,24 @@ function weekhours_admin() {
     '#maxlength' => 7,
     '#required' => TRUE,
   );
-  
+
+  $relativeDayDesc = 'Displays the start of the 7 day list from today ('.date("D").')';
+  $form['relative_day'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('<strong>Relative display</strong>'),
+    '#default_value' => $weekhours['relative_day'],
+    '#description' => $relativeDayDesc,
+    '#required' => FALSE
+  );
+  $normalHourDesc = 'Displays the Normal Hours of Opration on page, please contact site administrator for the location(page) of this block.';
+  $form['normalhours'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('<strong>Display Normal Hours of Operation block</strong>'),
+    '#default_value' => $weekhours['normalhours'],
+    '#description' => $normalHourDesc,
+    '#required' => FALSE
+  );
+
   $form = system_settings_form($form);
   $form['#submit'] = array('weekhours_admin_submit');
   return $form;
@@ -194,7 +211,7 @@ function weekhours_admin() {
 
 function weekhours_admin_validate($form, &$form_state) {
 // proper validation needs to be built
-// Regular expresstion to check correct format as well as correct hour and minute information 
+// Regular expresstion to check correct format as well as correct hour and minute information
 }
 
 function weekhours_admin_submit($form, &$form_state) {
@@ -202,9 +219,9 @@ function weekhours_admin_submit($form, &$form_state) {
 	$values = array();
 	foreach($form_state['values'] as $key => $value){
 		$values[$key] = $value;
-		if($key == 'sun_close') break; 		
-	} 
-	
+		if($key == 'normalhours') break;
+	}
+
 	variable_set('weekhours', $values);
 }
 
@@ -217,6 +234,18 @@ function weekhours_block_info() {
   $blocks['weekhours'] = array(
     'info' => t('Weekly Hour Block'),
   );
+  $blocks['weekhours_description'] = array(
+    'info' => t('Weekly Hour Block With Description'),
+  );
+  $blocks['weekhours_admin'] = array(
+    'info' => t('Weekly Hour Block Admin'),
+  );
+  $blocks['weekhours_default'] = array(
+    'info' => t('Weekly Hour Default (Normal Hours of Operation)'),
+  );
+  $blocks['weekhours_current'] = array(
+    'info' => t('Weekly Hour Current operation status'),
+  );
   return $blocks;
 }
 /**
@@ -226,88 +255,60 @@ function weekhours_block_view($delta = '') {
   $block = array();
   switch ($delta) {
     case 'weekhours':
+
+  		$weekhours = _get_weekhours();
+			$relative = $weekhours['relative_day'];
+			unset($weekhours['relative_day']);
+			unset($weekhours['normalhours']);
+
+			if($relative){
+
+	      $block['title'] = '7 day hours';
+	      $block['content'] = _weekhours_relative_weekday($weekhours);
+
+			}else{
+
+				$block['content'] =  _weekhours_absolute_weekday_table($weekhours);
+
+			}
+
       $block['subject'] = '';
-      $block['content'] = _weekhours_content();
       break;
+
+    case 'weekhours_description':
+
+  		$weekhours = _get_weekhours();
+			unset($weekhours['relative_day']);
+			$block['content'] =  _weekhours_absolute_weekday($weekhours);
+      break;
+
+		case 'weekhours_admin':
+
+	   	//$block['title'] = 'Standard week hours';
+	    $block['content'] = render(drupal_get_form('weekhours_admin'));
+			break;
+
+		case 'weekhours_default':
+
+			$weekhours = _get_weekhours();
+			if($weekhours['normalhours']){
+		   	//$block['title'] = 'Normal Hours of Operation';
+		    //$block['content'] = _weekhours_default_weekday($weekhours);
+		    $block['content'] = _weekhours_default_weekday_table($weekhours);
+			}
+
+			break;
+
+		case 'weekhours_current':
+
+			$weekhours = _get_weekhours();
+		   	//$block['title'] = 'Current status';
+		    $block['content'] = _weekhours_current_stat($weekhours);
+
+			break;
+
   }
   return $block;
-}
-function _weekhours_content() {
-
-	$weekhours = _get_weekhours(); $sd = ' - ';
-	$week['mon'] = array('start' => $weekhours['mon_open'], 'end' => $weekhours['mon_close'], 'description' => $sd);
-	$week['tue'] = array('start' => $weekhours['tue_open'], 'end' => $weekhours['tue_close'], 'description' => $sd);
-	$week['wed'] = array('start' => $weekhours['wed_open'], 'end' => $weekhours['wed_close'], 'description' => $sd);
-	$week['thu'] = array('start' => $weekhours['thu_open'], 'end' => $weekhours['thu_close'], 'description' => $sd);
-	$week['fri'] = array('start' => $weekhours['fri_open'], 'end' => $weekhours['fri_close'], 'description' => $sd);
-	$week['sat'] = array('start' => $weekhours['sat_open'], 'end' => $weekhours['sat_close'], 'description' => $sd);
-	$week['sun'] = array('start' => $weekhours['sun_open'], 'end' => $weekhours['sun_close'], 'description' => $sd);
-	$today = strtolower(date('D')); $week[$today]['today'] = true;
-	$thismonday = strtotime('monday this week');
-	$nextmonday = strtotime('monday next week');
-	//dsm('this monday : '.$thismonday.' (gmdate->'.gmdate("Ymd H:i", $thismonday).' ) '.' (date->'.date("Ymd H:i", $thismonday).' ) ');
-	//dsm('next monday : '.$nextmonday.' (gmdate->'.gmdate("Ymd H:i", $nextmonday).' ) '.' (date->'.date("Ymd H:i", $nextmonday).' ) ');
-
-	$query = new EntityFieldQuery();
-	$query->entityCondition('entity_type', 'node')
-	  ->entityCondition('bundle', 'weekhour')
-	  ->fieldCondition('field_wh_datetime', 'value', $thismonday, '>=')
-	  ->fieldCondition('field_wh_datetime', 'value', $nextmonday, '<')
-	  ->fieldOrderBy('field_wh_datetime', 'value', 'ASC');
-	$result = $query->execute();
-	//	dsm($result);	
-	$editAccess = node_access("update", "weekhour", $GLOBALS['user']);
-	if (isset($result['node'])) {
-		  $node_nids = array_keys($result['node']);
-			$nodes = entity_load('node', $node_nids);
-			//dsm($nodes);
-		//$editAccess = node_access("update", current($nodes), $GLOBALS['user']);
-		foreach($nodes as $node){
-			$start = $node->field_wh_datetime['und'][0]['value']; $end = $node->field_wh_datetime['und'][0]['value2'];
-			$weekday = strtolower(date("D", $start)); //$weekday = date("D Ymd g:iA", $start);
-			if($week[$weekday]){
-				if($start == $end){
-					$week[$weekday]['start'] = '';	
-					$week[$weekday]['end'] = '<span class="closed"> CLOSED</span>';
-					$week[$weekday]['description'] = '';
-				}
-				else
-				{
-					$week[$weekday]['start'] = date("g:iA", $start);	
-					$week[$weekday]['end'] = date("g:iA", $end);
-				}
-				
-				if(isset($node->field_wh_description['und'][0]['value'])){
-					$week[$weekday]['start'] = '<span class="weekhour-description">('.$node->field_wh_description['und'][0]['value'].')</span>'.$week[$weekday]['start'];
-					$week[$weekday]['title'] = $node->field_wh_description['und'][0]['value'];
-					
-				}
-
-				// attach edit button if the user has Edit access for the node
-				if($editAccess === true) $week[$weekday]['start'] .= '<span class="weekhour-edit"><a href="'.url('node/'.$node->nid.'/edit', array('query' => drupal_get_destination())).'">EDIT</a></span>';
-				
-			}
-			//dsm(date("D Ymd g:iA", $node->field_wh_datetime['und'][0]['value']).' to '.date("D Ymd g:iA", $node->field_wh_datetime['und'][0]['value2']));
-			//dsm(date("D Ymd g:iA", $node->field_wh_datetime['und'][0]['value']));
-		}
-	}
-	
-	$todayMark = ''; 
-	$output = '	
-		<div class="weekhours-container">
-			<div class="oneweekhours">
-				<div class="mon '.(isset($week['mon']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['mon']['title']) ? 'custom"><span class="title">'.$week['mon']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['mon']['today']) ? 'today ">'.$todayMark : '">').'Mon: </span><span class="openhours">'.$week['mon']['start'].$week['mon']['description'].$week['mon']['end'].'</span></div>
-				<div class="tue '.(isset($week['tue']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['tue']['title']) ? 'custom"><span class="title">'.$week['tue']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['tue']['today']) ? 'today ">'.$todayMark : '">').'Tue: </span><span class="openhours">'.$week['tue']['start'].$week['tue']['description'].$week['tue']['end'].'</span></div>		
-				<div class="wed '.(isset($week['wed']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['wed']['title']) ? 'custom"><span class="title">'.$week['wed']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['wed']['today']) ? 'today ">'.$todayMark : '">').'Wed: </span><span class="openhours">'.$week['wed']['start'].$week['wed']['description'].$week['wed']['end'].'</span></div>		
-				<div class="thu '.(isset($week['thu']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['thu']['title']) ? 'custom"><span class="title">'.$week['thu']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['thu']['today']) ? 'today ">'.$todayMark : '">').'Thu: </span><span class="openhours">'.$week['thu']['start'].$week['thu']['description'].$week['thu']['end'].'</span></div>		
-				<div class="fri '.(isset($week['fri']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['fri']['title']) ? 'custom"><span class="title">'.$week['fri']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['fri']['today']) ? 'today ">'.$todayMark : '">').'Fri: </span><span class="openhours">'.$week['fri']['start'].$week['fri']['description'].$week['fri']['end'].'</span></div>		
-				<div class="sat '.(isset($week['sat']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['sat']['title']) ? 'custom"><span class="title">'.$week['sat']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['sat']['today']) ? 'today ">'.$todayMark : '">').'Sat: </span><span class="openhours">'.$week['sat']['start'].$week['sat']['description'].$week['sat']['end'].'</span></div>		
-				<div class="sun '.(isset($week['sun']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['sun']['title']) ? 'custom"><span class="title">'.$week['sun']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['sun']['today']) ? 'today ">'.$todayMark : '">').'Sun: </span><span class="openhours">'.$week['sun']['start'].$week['sun']['description'].$week['sun']['end'].'</span></div>
-			</div>
-		  '.($editAccess === true ? '<div class="create-specialday"><a href="'.url('node/add/weekhour', array('query' => drupal_get_destination())).'">Create a custom day</a></div>' : '').'
-		</div>
-	';
-  return $output;
 }
 
 function _get_weekhours(){
@@ -319,8 +320,371 @@ function _get_weekhours(){
 		$weekhours['thu_open'] = '8:45AM';	$weekhours['thu_close'] = '11:45PM';
 		$weekhours['fri_open'] = '8:45AM';	$weekhours['fri_close'] = '9:45PM';
 		$weekhours['sat_open'] = '10:00AM';	$weekhours['sat_close'] = '9:45PM';
-		$weekhours['sun_open'] = '1:00PAM';	$weekhours['sun_close'] = '11:45PM';
+		$weekhours['sun_open'] = '1:00PM';	$weekhours['sun_close'] = '11:45PM';
 	}
 	return $weekhours;
 }
 
+function _weekhours_current_stat($weekhours){
+	//dsm($weekhours);
+
+	$statusOpen = 'Our facility is <b><i class="fa fa-chevron-circle-right" style="color:#16ac96;"></i> open</b>';
+	$statusClosed = 'Our facility is <b><i class="fa fa-minus-circle"></i> closed</b>';
+	$status = 'Open Hour Status Unknown';
+
+	//$today = strtolower(date('D'));
+	$now = time();
+	$today = strtotime('today');
+	$endtoday = strtotime('tomorrow');// strtotime('today') + 86400;
+	//$startday = strtotime('monday this week') - 86400; // -1 day value (24 * 60 * 60); to set the last Sunday as start day of week
+	//$endday = strtotime('monday next week') - 86400; // -1 day value (24 * 60 * 60); to set the following Saturday as last day of week
+
+	$query = new EntityFieldQuery();
+	$query->entityCondition('entity_type', 'node')
+	  ->entityCondition('bundle', 'weekhour')
+	  ->fieldCondition('field_wh_datetime', 'value', $today, '>=')
+	  ->fieldCondition('field_wh_datetime', 'value', $endtoday, '<')
+	  ->fieldOrderBy('field_wh_datetime', 'value', 'ASC');
+	$result = $query->execute();
+
+	if (isset($result['node'])) {
+		  $node_nids = array_keys($result['node']);
+			$nodes = entity_load('node', $node_nids);
+			//dsm($nodes);
+		foreach($nodes as $node){
+			$start = $node->field_wh_datetime['und'][0]['value']; $end = $node->field_wh_datetime['und'][0]['value2'];
+			//$weekday = strtolower(date("D", $start)); //$weekday = date("D Ymd g:iA", $start);
+			if($start < $now && $end > $now){
+				$status = $statusOpen;
+			}
+			else{
+				$status = $statusClosed;
+			}
+			//dsm(date("D Ymd g:iA", $node->field_wh_datetime['und'][0]['value']).' to '.date("D Ymd g:iA", $node->field_wh_datetime['und'][0]['value2']));
+			//dsm(date("D Ymd g:iA", $node->field_wh_datetime['und'][0]['value']));
+		}
+	}
+	else{
+		$weekday = strtolower(date('D'));
+		$open = strtotime(date("Y-m-d").' '.$weekhours[$weekday.'_open']);
+		$close = strtotime(date("Y-m-d").' '.$weekhours[$weekday.'_close']);
+
+		if($open < $now && $close > $now){
+			$status = $statusOpen;
+		}
+		else{
+			$status = $statusClosed;
+		}
+		//dsm($open.' <---> '.$close);
+	}
+
+	//dsm('STATUS: '.$status);
+
+	return '<a class="weekhours-status" href="/about-us/library-hours">'.$status.'</a>';
+}
+
+function _weekhours_default_weekday($weekhours){
+
+	$sd = ' - ';
+	$week['mon'] = array('start' => $weekhours['mon_open'], 'end' => $weekhours['mon_close'], 'description' => $sd);
+	$week['tue'] = array('start' => $weekhours['tue_open'], 'end' => $weekhours['tue_close'], 'description' => $sd);
+	$week['wed'] = array('start' => $weekhours['wed_open'], 'end' => $weekhours['wed_close'], 'description' => $sd);
+	$week['thu'] = array('start' => $weekhours['thu_open'], 'end' => $weekhours['thu_close'], 'description' => $sd);
+	$week['fri'] = array('start' => $weekhours['fri_open'], 'end' => $weekhours['fri_close'], 'description' => $sd);
+	$week['sat'] = array('start' => $weekhours['sat_open'], 'end' => $weekhours['sat_close'], 'description' => $sd);
+	$week['sun'] = array('start' => $weekhours['sun_open'], 'end' => $weekhours['sun_close'], 'description' => $sd);
+
+	$todayMark = '';
+	$output = '
+		<div class="weekhours-container">
+			<div class="oneweekhours default">
+				<div class="sun '.(isset($week['sun']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['sun']['title']) ? 'custom"><span class="title">'.$week['sun']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['sun']['today']) ? 'today ">'.$todayMark : '">').'Sun: </span><span class="openhours">'.$week['sun']['start'].$week['sun']['description'].' '.$week['sun']['end'].'</span></div>
+				<div class="mon '.(isset($week['mon']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['mon']['title']) ? 'custom"><span class="title">'.$week['mon']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['mon']['today']) ? 'today ">'.$todayMark : '">').'Mon: </span><span class="openhours">'.$week['mon']['start'].$week['mon']['description'].' '.$week['mon']['end'].'</span></div>
+				<div class="tue '.(isset($week['tue']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['tue']['title']) ? 'custom"><span class="title">'.$week['tue']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['tue']['today']) ? 'today ">'.$todayMark : '">').'Tue: </span><span class="openhours">'.$week['tue']['start'].$week['tue']['description'].' '.$week['tue']['end'].'</span></div>
+				<div class="wed '.(isset($week['wed']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['wed']['title']) ? 'custom"><span class="title">'.$week['wed']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['wed']['today']) ? 'today ">'.$todayMark : '">').'Wed: </span><span class="openhours">'.$week['wed']['start'].$week['wed']['description'].' '.$week['wed']['end'].'</span></div>
+				<div class="thu '.(isset($week['thu']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['thu']['title']) ? 'custom"><span class="title">'.$week['thu']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['thu']['today']) ? 'today ">'.$todayMark : '">').'Thu: </span><span class="openhours">'.$week['thu']['start'].$week['thu']['description'].' '.$week['thu']['end'].'</span></div>
+				<div class="fri '.(isset($week['fri']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['fri']['title']) ? 'custom"><span class="title">'.$week['fri']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['fri']['today']) ? 'today ">'.$todayMark : '">').'Fri: </span><span class="openhours">'.$week['fri']['start'].$week['fri']['description'].' '.$week['fri']['end'].'</span></div>
+				<div class="sat '.(isset($week['sat']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['sat']['title']) ? 'custom"><span class="title">'.$week['sat']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['sat']['today']) ? 'today ">'.$todayMark : '">').'Sat: </span><span class="openhours">'.$week['sat']['start'].$week['sat']['description'].' '.$week['sat']['end'].'</span></div>
+			</div>
+		  '.($editAccess === true ? '<div class="create-specialday"><a href="'.url('node/add/weekhour', array('query' => drupal_get_destination())).'">Create a custom day</a></div>' : '').'
+		</div>
+	';
+  return $output;
+}
+
+function _weekhours_default_weekday_table($weekhours){
+
+	$sd = ' - ';
+	$week['mon'] = array('start' => $weekhours['mon_open'], 'end' => $weekhours['mon_close'], 'description' => $sd);
+	$week['tue'] = array('start' => $weekhours['tue_open'], 'end' => $weekhours['tue_close'], 'description' => $sd);
+	$week['wed'] = array('start' => $weekhours['wed_open'], 'end' => $weekhours['wed_close'], 'description' => $sd);
+	$week['thu'] = array('start' => $weekhours['thu_open'], 'end' => $weekhours['thu_close'], 'description' => $sd);
+	$week['fri'] = array('start' => $weekhours['fri_open'], 'end' => $weekhours['fri_close'], 'description' => $sd);
+	$week['sat'] = array('start' => $weekhours['sat_open'], 'end' => $weekhours['sat_close'], 'description' => $sd);
+	$week['sun'] = array('start' => $weekhours['sun_open'], 'end' => $weekhours['sun_close'], 'description' => $sd);
+
+	$todayMark = '';
+	$output = '
+		<table class="weekhours-container">
+			<tr class="oneweekhours default">
+				<td class="sun '.(isset($week['sun']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['sun']['title']) ? 'custom"><span class="title">'.$week['sun']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['sun']['today']) ? 'today ">'.$todayMark : '">').'Sun: </span><span class="openhours">'.$week['sun']['start'].$week['sun']['description'].' '.$week['sun']['end'].'</span></td>
+				<td class="mon '.(isset($week['mon']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['mon']['title']) ? 'custom"><span class="title">'.$week['mon']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['mon']['today']) ? 'today ">'.$todayMark : '">').'Mon: </span><span class="openhours">'.$week['mon']['start'].$week['mon']['description'].' '.$week['mon']['end'].'</span></td>
+				<td class="tue '.(isset($week['tue']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['tue']['title']) ? 'custom"><span class="title">'.$week['tue']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['tue']['today']) ? 'today ">'.$todayMark : '">').'Tue: </span><span class="openhours">'.$week['tue']['start'].$week['tue']['description'].' '.$week['tue']['end'].'</span></td>
+				<td class="wed '.(isset($week['wed']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['wed']['title']) ? 'custom"><span class="title">'.$week['wed']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['wed']['today']) ? 'today ">'.$todayMark : '">').'Wed: </span><span class="openhours">'.$week['wed']['start'].$week['wed']['description'].' '.$week['wed']['end'].'</span></td>
+				<td class="thu '.(isset($week['thu']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['thu']['title']) ? 'custom"><span class="title">'.$week['thu']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['thu']['today']) ? 'today ">'.$todayMark : '">').'Thu: </span><span class="openhours">'.$week['thu']['start'].$week['thu']['description'].' '.$week['thu']['end'].'</span></td>
+				<td class="fri '.(isset($week['fri']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['fri']['title']) ? 'custom"><span class="title">'.$week['fri']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['fri']['today']) ? 'today ">'.$todayMark : '">').'Fri: </span><span class="openhours">'.$week['fri']['start'].$week['fri']['description'].' '.$week['fri']['end'].'</span></td>
+				<td class="sat '.(isset($week['sat']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['sat']['title']) ? 'custom"><span class="title">'.$week['sat']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['sat']['today']) ? 'today ">'.$todayMark : '">').'Sat: </span><span class="openhours">'.$week['sat']['start'].$week['sat']['description'].' '.$week['sat']['end'].'</span></td>
+			</tr>
+		  '.($editAccess === true ? '<tr><td class="create-specialday"><a href="'.url('node/add/weekhour', array('query' => drupal_get_destination())).'">Create a custom day</a></td></tr>' : '').'
+		</table>
+	';
+  return $output;
+}
+
+function _weekhours_absolute_weekday_table($weekhours){
+
+	$sd = ' - ';
+	$week['mon'] = array('start' => $weekhours['mon_open'], 'end' => $weekhours['mon_close'], 'description' => $sd);
+	$week['tue'] = array('start' => $weekhours['tue_open'], 'end' => $weekhours['tue_close'], 'description' => $sd);
+	$week['wed'] = array('start' => $weekhours['wed_open'], 'end' => $weekhours['wed_close'], 'description' => $sd);
+	$week['thu'] = array('start' => $weekhours['thu_open'], 'end' => $weekhours['thu_close'], 'description' => $sd);
+	$week['fri'] = array('start' => $weekhours['fri_open'], 'end' => $weekhours['fri_close'], 'description' => $sd);
+	$week['sat'] = array('start' => $weekhours['sat_open'], 'end' => $weekhours['sat_close'], 'description' => $sd);
+	$week['sun'] = array('start' => $weekhours['sun_open'], 'end' => $weekhours['sun_close'], 'description' => $sd);
+	$today = strtolower(date('D')); $week[$today]['today'] = true;
+	$startday = strtotime('monday this week') - 86400; // -1 day value (24 * 60 * 60); to set the last Sunday as start day of week
+	$endday = strtotime('monday next week') - 86400; // -1 day value (24 * 60 * 60); to set the following Saturday as last day of week
+	//dsm('this monday : '.$startday.' (gmdate->'.gmdate("Ymd H:i", $startday).' ) '.' (date->'.date("Ymd H:i", $startday).' ) ');
+	//dsm('next monday : '.$endday.' (gmdate->'.gmdate("Ymd H:i", $endday).' ) '.' (date->'.date("Ymd H:i", $endday).' ) ');
+
+	$query = new EntityFieldQuery();
+	$query->entityCondition('entity_type', 'node')
+	  ->entityCondition('bundle', 'weekhour')
+	  ->fieldCondition('field_wh_datetime', 'value', $startday, '>=')
+	  ->fieldCondition('field_wh_datetime', 'value', $endday, '<')
+	  ->fieldOrderBy('field_wh_datetime', 'value', 'ASC');
+	$result = $query->execute();
+	//	dsm($result);
+	$editAccess = node_access("update", "weekhour", $GLOBALS['user']);
+	if (isset($result['node'])) {
+		  $node_nids = array_keys($result['node']);
+			$nodes = entity_load('node', $node_nids);
+			//dsm($nodes);
+		//$editAccess = node_access("update", current($nodes), $GLOBALS['user']);
+		foreach($nodes as $node){
+			$start = $node->field_wh_datetime['und'][0]['value']; $end = $node->field_wh_datetime['und'][0]['value2'];
+			$weekday = strtolower(date("D", $start)); //$weekday = date("D Ymd g:iA", $start);
+			if($week[$weekday]){
+				if($start == $end){
+					$week[$weekday]['start'] = '';
+					$week[$weekday]['end'] = '<span class="closed"> CLOSED</span>';
+					$week[$weekday]['description'] = '';
+				}
+				else
+				{
+					$week[$weekday]['start'] = date("g:iA", $start);
+					$week[$weekday]['end'] = date("g:iA", $end);
+				}
+
+				if(isset($node->field_wh_description['und'][0]['value'])){
+					$week[$weekday]['start'] = '<span class="weekhour-description">('.$node->field_wh_description['und'][0]['value'].') </span>'.$week[$weekday]['start'];
+					$week[$weekday]['title'] = $node->field_wh_description['und'][0]['value'];
+
+				}
+
+				// attach edit button if the user has Edit access for the node
+				if($editAccess === true) $week[$weekday]['start'] .= '<span class="weekhour-edit"><a href="'.url('node/'.$node->nid.'/edit', array('query' => drupal_get_destination())).'">EDIT</a></span>';
+
+			}
+			//dsm(date("D Ymd g:iA", $node->field_wh_datetime['und'][0]['value']).' to '.date("D Ymd g:iA", $node->field_wh_datetime['und'][0]['value2']));
+			//dsm(date("D Ymd g:iA", $node->field_wh_datetime['und'][0]['value']));
+		}
+	}
+
+	$todayMark = '<i class="fa fa-circle"></i>';
+	$output = '
+		<table class="weekhours-container">
+			<tbody class="oneweekhours">
+				<tr><td class="sun '.(isset($week['sun']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['sun']['title']) ? 'custom"><span class="title">'.$week['sun']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['sun']['today']) ? 'today ">'.$todayMark : '">').'Sun: </span><span class="openhours">'.$week['sun']['start'].$week['sun']['description'].' '.$week['sun']['end'].'</span></td></tr>
+				<tr><td class="mon '.(isset($week['mon']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['mon']['title']) ? 'custom"><span class="title">'.$week['mon']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['mon']['today']) ? 'today ">'.$todayMark : '">').'Mon: </span><span class="openhours">'.$week['mon']['start'].$week['mon']['description'].' '.$week['mon']['end'].'</span></td></tr>
+				<tr><td class="tue '.(isset($week['tue']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['tue']['title']) ? 'custom"><span class="title">'.$week['tue']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['tue']['today']) ? 'today ">'.$todayMark : '">').'Tue: </span><span class="openhours">'.$week['tue']['start'].$week['tue']['description'].' '.$week['tue']['end'].'</span></td></tr>
+				<tr><td class="wed '.(isset($week['wed']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['wed']['title']) ? 'custom"><span class="title">'.$week['wed']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['wed']['today']) ? 'today ">'.$todayMark : '">').'Wed: </span><span class="openhours">'.$week['wed']['start'].$week['wed']['description'].' '.$week['wed']['end'].'</span></td></tr>
+				<tr><td class="thu '.(isset($week['thu']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['thu']['title']) ? 'custom"><span class="title">'.$week['thu']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['thu']['today']) ? 'today ">'.$todayMark : '">').'Thu: </span><span class="openhours">'.$week['thu']['start'].$week['thu']['description'].' '.$week['thu']['end'].'</span></td></tr>
+				<tr><td class="fri '.(isset($week['fri']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['fri']['title']) ? 'custom"><span class="title">'.$week['fri']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['fri']['today']) ? 'today ">'.$todayMark : '">').'Fri: </span><span class="openhours">'.$week['fri']['start'].$week['fri']['description'].' '.$week['fri']['end'].'</span></td></tr>
+				<tr><td class="sat '.(isset($week['sat']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['sat']['title']) ? 'custom"><span class="title">'.$week['sat']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['sat']['today']) ? 'today ">'.$todayMark : '">').'Sat: </span><span class="openhours">'.$week['sat']['start'].$week['sat']['description'].' '.$week['sat']['end'].'</span></td></tr>
+
+		  '.($editAccess === true ? '<tr><td class="create-specialday"><a href="'.url('node/add/weekhour', array('query' => drupal_get_destination())).'">Create a custom day</a></td></tr>' : '').'
+		</tbody></table>
+	';
+  return $output;
+}
+
+function _weekhours_absolute_weekday($weekhours){
+
+	$sd = ' - ';
+	$week['mon'] = array('start' => $weekhours['mon_open'], 'end' => $weekhours['mon_close'], 'description' => $sd);
+	$week['tue'] = array('start' => $weekhours['tue_open'], 'end' => $weekhours['tue_close'], 'description' => $sd);
+	$week['wed'] = array('start' => $weekhours['wed_open'], 'end' => $weekhours['wed_close'], 'description' => $sd);
+	$week['thu'] = array('start' => $weekhours['thu_open'], 'end' => $weekhours['thu_close'], 'description' => $sd);
+	$week['fri'] = array('start' => $weekhours['fri_open'], 'end' => $weekhours['fri_close'], 'description' => $sd);
+	$week['sat'] = array('start' => $weekhours['sat_open'], 'end' => $weekhours['sat_close'], 'description' => $sd);
+	$week['sun'] = array('start' => $weekhours['sun_open'], 'end' => $weekhours['sun_close'], 'description' => $sd);
+	$today = strtolower(date('D')); $week[$today]['today'] = true;
+	$startday = strtotime('monday this week') - 86400; // -1 day value (24 * 60 * 60); to set the last Sunday as start day of week
+	$endday = strtotime('monday next week') - 86400; // -1 day value (24 * 60 * 60); to set the following Saturday as last day of week
+	//dsm('this monday : '.$startday.' (gmdate->'.gmdate("Ymd H:i", $startday).' ) '.' (date->'.date("Ymd H:i", $startday).' ) ');
+	//dsm('next monday : '.$endday.' (gmdate->'.gmdate("Ymd H:i", $endday).' ) '.' (date->'.date("Ymd H:i", $endday).' ) ');
+
+	$query = new EntityFieldQuery();
+	$query->entityCondition('entity_type', 'node')
+	  ->entityCondition('bundle', 'weekhour')
+	  ->fieldCondition('field_wh_datetime', 'value', $startday, '>=')
+	  ->fieldCondition('field_wh_datetime', 'value', $endday, '<')
+	  ->fieldOrderBy('field_wh_datetime', 'value', 'ASC');
+	$result = $query->execute();
+	//	dsm($result);
+	$editAccess = node_access("update", "weekhour", $GLOBALS['user']);
+	if (isset($result['node'])) {
+		  $node_nids = array_keys($result['node']);
+			$nodes = entity_load('node', $node_nids);
+			//dsm($nodes);
+		//$editAccess = node_access("update", current($nodes), $GLOBALS['user']);
+		foreach($nodes as $node){
+			$start = $node->field_wh_datetime['und'][0]['value']; $end = $node->field_wh_datetime['und'][0]['value2'];
+			$weekday = strtolower(date("D", $start)); //$weekday = date("D Ymd g:iA", $start);
+			if($week[$weekday]){
+				if($start == $end){
+					$week[$weekday]['start'] = '';
+					$week[$weekday]['end'] = '<span class="closed"> CLOSED</span>';
+					$week[$weekday]['description'] = '';
+				}
+				else
+				{
+					$week[$weekday]['start'] = date("g:iA", $start);
+					$week[$weekday]['end'] = date("g:iA", $end);
+				}
+
+				if(isset($node->field_wh_description['und'][0]['value'])){
+					$week[$weekday]['start'] = '<span class="weekhour-description">('.$node->field_wh_description['und'][0]['value'].')</span> '.$week[$weekday]['start'];
+					$week[$weekday]['title'] = $node->field_wh_description['und'][0]['value'];
+
+				}
+
+				// attach edit button if the user has Edit access for the node
+				if($editAccess === true) $week[$weekday]['start'] .= '<span class="weekhour-edit"><a href="'.url('node/'.$node->nid.'/edit', array('query' => drupal_get_destination())).'">EDIT</a></span>';
+
+			}
+			//dsm(date("D Ymd g:iA", $node->field_wh_datetime['und'][0]['value']).' to '.date("D Ymd g:iA", $node->field_wh_datetime['und'][0]['value2']));
+			//dsm(date("D Ymd g:iA", $node->field_wh_datetime['und'][0]['value']));
+		}
+	}
+
+	$todayMark = '';
+	$output = '
+		<div class="weekhours-container">
+			<div class="oneweekhours">
+				<div class="sun '.(isset($week['sun']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['sun']['title']) ? 'custom"><span class="title">'.$week['sun']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['sun']['today']) ? 'today ">'.$todayMark : '">').'Sun: </span><span class="openhours">'.$week['sun']['start'].$week['sun']['description'].' '.$week['sun']['end'].'</span></div>
+				<div class="mon '.(isset($week['mon']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['mon']['title']) ? 'custom"><span class="title">'.$week['mon']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['mon']['today']) ? 'today ">'.$todayMark : '">').'Mon: </span><span class="openhours">'.$week['mon']['start'].$week['mon']['description'].' '.$week['mon']['end'].'</span></div>
+				<div class="tue '.(isset($week['tue']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['tue']['title']) ? 'custom"><span class="title">'.$week['tue']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['tue']['today']) ? 'today ">'.$todayMark : '">').'Tue: </span><span class="openhours">'.$week['tue']['start'].$week['tue']['description'].' '.$week['tue']['end'].'</span></div>
+				<div class="wed '.(isset($week['wed']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['wed']['title']) ? 'custom"><span class="title">'.$week['wed']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['wed']['today']) ? 'today ">'.$todayMark : '">').'Wed: </span><span class="openhours">'.$week['wed']['start'].$week['wed']['description'].' '.$week['wed']['end'].'</span></div>
+				<div class="thu '.(isset($week['thu']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['thu']['title']) ? 'custom"><span class="title">'.$week['thu']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['thu']['today']) ? 'today ">'.$todayMark : '">').'Thu: </span><span class="openhours">'.$week['thu']['start'].$week['thu']['description'].' '.$week['thu']['end'].'</span></div>
+				<div class="fri '.(isset($week['fri']['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($week['fri']['title']) ? 'custom"><span class="title">'.$week['fri']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['fri']['today']) ? 'today ">'.$todayMark : '">').'Fri: </span><span class="openhours">'.$week['fri']['start'].$week['fri']['description'].' '.$week['fri']['end'].'</span></div>
+				<div class="sat '.(isset($week['sat']['today']) ? 'today' : '').' even-weekhours clearfix '.(isset($week['sat']['title']) ? 'custom"><span class="title">'.$week['sat']['title'].'</span>' : '">').'<span class="weekday '.(isset($week['sat']['today']) ? 'today ">'.$todayMark : '">').'Sat: </span><span class="openhours">'.$week['sat']['start'].$week['sat']['description'].' '.$week['sat']['end'].'</span></div>
+			</div>
+		  '.($editAccess === true ? '<div class="create-specialday"><a href="'.url('node/add/weekhour', array('query' => drupal_get_destination())).'">Create a custom day</a></div>' : '').'
+		</div>
+	';
+  return $output;
+}
+
+function _weekhours_relative_weekday($weekhours){
+
+	$sd = ' - ';
+	$week = array();
+
+	for($i=0; $i < 7; $i++){
+
+		$s = strtolower(date('D',strtotime('+'.$i.' day')));
+		$week[$s] = array('start' => $weekhours[$s.'_open'], 'end' => $weekhours[$s.'_close'], 'description' => $sd);
+
+	}
+
+	//dsm($weekhours);
+	//dsm(strtolower(date('D',strtotime('today'))));
+	//dsm(strtolower(date('D',strtotime('+1 day'))));
+	//dsm(strtolower(date('D',strtotime('+7 day midnight'))));
+	$today = strtolower(date('D')); $week[$today]['today'] = true;
+	$startday = strtotime('today');
+	$endday = strtotime('+7 day midnight');
+	//dsm('this monday : '.$startday.' (gmdate->'.gmdate("Ymd H:i", $startday).' ) '.' (date->'.date("Ymd H:i", $startday).' ) ');
+	//dsm('next monday : '.$endday.' (gmdate->'.gmdate("Ymd H:i", $endday).' ) '.' (date->'.date("Ymd H:i", $endday).' ) ');
+
+
+	$query = new EntityFieldQuery();
+		$query->entityCondition('entity_type', 'node')
+		  ->entityCondition('bundle', 'weekhour')
+		  ->fieldCondition('field_wh_datetime', 'value', $startday, '>=')
+		  ->fieldCondition('field_wh_datetime', 'value', $endday, '<')
+		  ->fieldOrderBy('field_wh_datetime', 'value', 'ASC');
+		$result = $query->execute();
+
+	$editAccess = node_access("update", "weekhour", $GLOBALS['user']);
+
+	if (isset($result['node'])) {
+		  $node_nids = array_keys($result['node']);
+			$nodes = entity_load('node', $node_nids);
+
+		//$editAccess = node_access("update", current($nodes), $GLOBALS['user']);
+		foreach($nodes as $node){
+
+			$start = $node->field_wh_datetime['und'][0]['value']; $end = $node->field_wh_datetime['und'][0]['value2'];
+			$weekday = strtolower(date("D", $start)); //$weekday = date("D Ymd g:iA", $start);
+
+			if($week[$weekday]){
+
+				if($start == $end){
+
+					$week[$weekday]['start'] = '';
+					$week[$weekday]['end'] = '<span class="closed"> CLOSED</span>';
+					$week[$weekday]['description'] = '';
+
+				}else{
+
+					$week[$weekday]['start'] = date("g:iA", $start);
+					$week[$weekday]['end'] = date("g:iA", $end);
+
+				}
+
+				if(isset($node->field_wh_description['und'][0]['value'])){
+					$week[$weekday]['start'] = '<span class="weekhour-description">('.$node->field_wh_description['und'][0]['value'].')</span> '.$week[$weekday]['start'];
+					$week[$weekday]['title'] = $node->field_wh_description['und'][0]['value'];
+
+				}
+
+				// attach edit button if the user has Edit access for the node
+				if($editAccess === true) $week[$weekday]['start'] .= '<span class="weekhour-edit"><a href="'.url('node/'.$node->nid.'/edit', array('query' => drupal_get_destination())).'">EDIT</a></span>';
+
+			}
+			//dsm(date("D Ymd g:iA", $node->field_wh_datetime['und'][0]['value']).' to '.date("D Ymd g:iA", $node->field_wh_datetime['und'][0]['value2']));
+			//dsm(date("D Ymd g:iA", $node->field_wh_datetime['und'][0]['value']));
+		}
+
+	}
+
+	$todayMark = '';
+	$output = '
+		<div class="weekhours-container">
+			<div class="oneweekhours">';
+
+	foreach($week as $eachday => $value){
+		$output .= '<div class="'.$eachday.' '.(isset($value['today']) ? 'today' : '').' odd-weekhours clearfix '.(isset($value['title']) ? 'custom"><span class="title">'.$value['title'].'</span>' : '">').'<span class="weekday '.(isset($value['today']) ? 'today ">'.$todayMark : '">').strtoupper($eachday).': </span><span class="openhours">'.$value['start'].$value['description'].' '.$value['end'].'</span></div>';
+
+	}
+
+
+	$output .='</div>
+		  '.($editAccess === true ? '<div class="create-specialday"><a href="'.url('node/add/weekhour', array('query' => drupal_get_destination())).'">Create a custom day</a></div>' : '').'
+		</div>';
+
+	return $output;
+}

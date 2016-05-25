@@ -19,7 +19,7 @@ NOTE: This module expect you to know how to install all dependancy modules, inst
 
 5. enable "weekhours" module and go to "/admin/config/regional/weekhours".
 
-6. type in your regular business hours follwing the format discription.
+6. type in your regular business hours follwing the format discription. Check "Relative display" if you want to display 7 relative days from today.
 
 7. go to "/node/add/weekhour" to create any special / holiday / closing hours by creating each node.
 
@@ -38,3 +38,5 @@ For closing day, setting the start and end hours to 00:00 will display the descr
 * CONTACT ******************************************************
 
 JAESUNG SONG (jsong@berklee.edu) : Maintainer
+
+Last updated on May 22, 2015
