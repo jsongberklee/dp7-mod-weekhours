@@ -40,3 +40,5 @@ For closing day, setting the start and end hours to 00:00 will display the descr
 JAESUNG SONG (jsong@berklee.edu) : Maintainer
 
 Last updated on May 22, 2015
+=======
+* New location for this module at "https://github.com/jsongberklee/drupal-module-weekhours"

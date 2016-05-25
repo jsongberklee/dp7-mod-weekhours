@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* #weekhours-admin .form-wrapper{display:inline-block;} */
 #weekhours-admin .form-item{display:inline-block; margin-top: 12px; margin-bottom: 0;}
 #weekhours-admin .form-item .description{line-height: 25px; padding-bottom:0;}
@@ -24,12 +25,8 @@
 
 .odd-weekhours{background-color: #f2f2f2;}
 .even-weekhours{background-color: #f9f9f9;}
-
 .oneweekhours span.title{display:none;}
-
-.oneweekhours div.custom span.title {
-	display:none;
-}
+.oneweekhours div.custom span.title {display:none;}
 .oneweekhours div.custom:hover {
     cursor: help;
     position: relative;

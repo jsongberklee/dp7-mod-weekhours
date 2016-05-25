@@ -567,7 +567,6 @@ function _weekhours_absolute_weekday($weekhours){
 				if(isset($node->field_wh_description['und'][0]['value'])){
 					$week[$weekday]['start'] = '<span class="weekhour-description">('.$node->field_wh_description['und'][0]['value'].')</span> '.$week[$weekday]['start'];
 					$week[$weekday]['title'] = $node->field_wh_description['und'][0]['value'];
-
 				}
 
 				// attach edit button if the user has Edit access for the node
