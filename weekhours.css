@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /* #weekhours-admin .form-wrapper{display:inline-block;} */
 #weekhours-admin .form-item{display:inline-block; margin-top: 12px; margin-bottom: 0;}
 #weekhours-admin .form-item .description{line-height: 25px; padding-bottom:0;}
@@ -13,18 +12,18 @@
 .openhours .closed{/* color: #f00; */}
 .weekhours-container{}
 .oneweekhours div{border: 1px solid #616A7F;border-bottom: 0; padding: 9px 8px;  font-size: 13px;}
-.oneweekhours{border-bottom: 1px solid #616A7F;}
+.oneweekhours{}
 /* .oneweekhours div.sun{border-bottom: 1px solid #616A7F;} */
 /* .oneweekhours div.sat{border-bottom: 1px solid #616A7F;} */
-.oneweekhours .today{background-color: #eee}
+.oneweekhours .today{}
 .weekday{}
 .weekhour-edit{position:absolute; right:0px; font-size: 70%; font-weight: bolder; background-color: yellow; /* -webkit-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.75);-moz-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.75);box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.75); */}
 .weekhour-description{}
 .weekhours-container .create-specialday{position:relative; font-size: 70%; font-weight: bolder; background-color: yellow; margin-top: 2px; text-transform: uppercase;}
 .weekhours-container .create-specialday a{display:block}
 
-.odd-weekhours{background-color: #f2f2f2;}
-.even-weekhours{background-color: #f9f9f9;}
+.odd-weekhours{}
+.even-weekhours{}
 .oneweekhours span.title{display:none;}
 .oneweekhours div.custom span.title {display:none;}
 .oneweekhours div.custom:hover {
