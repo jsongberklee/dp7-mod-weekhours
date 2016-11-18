@@ -380,7 +380,7 @@ function _weekhours_current_stat($weekhours){
 
 	//dsm('STATUS: '.$status);
 
-	return '<a class="weekhours-status" href="/about-us/library-hours">'.$status.'</a>';
+	return '<a class="weekhours-status" href="#" title="Scroll down to footer for details">'.$status.'</a>';
 }
 
 function _weekhours_default_weekday($weekhours){
